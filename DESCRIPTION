@@ -1,0 +1,35 @@
+Package: pedana
+Title: A tool for creating pedigree problems and practicing pedigree analysis
+Version: 0.3.0
+Authors@R: 
+    person(given = "Justin",
+           family = "Timm",
+           email = "justin.timm@uni-due.de",
+           role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0002-5718-3472"))
+Description: 'pedana' is an R package which at its core provides a learning app 
+    for practicing pedigree analysis. In addition, it provides the necessary 
+    functions to simulate pedigree problems and to analyze and feedback 
+    students' reasoning.
+License: GPL (>= 3)
+Encoding: UTF-8
+LazyData: true
+Depends: 
+    R (>= 4.1)
+RoxygenNote: 7.1.2
+Imports: 
+    stats,
+    utils,
+    kinship2,
+    shiny,
+    shinyjs
+Suggests: 
+    rmarkdown,
+    knitr,
+    testthat,
+    ggplot2,
+    bench,
+    kableExtra,
+    dplyr
+VignetteBuilder: knitr
+Config/testthat/edition: 3

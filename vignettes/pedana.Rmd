@@ -1,0 +1,118 @@
+---
+title: "pedana: Create Pedigree Problems, Practice Pedigree Analysis"
+author: "Justin Timm"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{pedana: Create Pedigree Problems, Practice Pedigree Analysis}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+abstract: "`pedana` is an *R* package providing functions to generate pedigrees and to simulate the transmission of traits of various modes of inheritance. With an included Shiny app, the package offers an environment for creating pedigree problems and exercising pedigree analysis."
+---
+
+# pedana
+
+`pedana` is an R package which at its core provides a learning app for 
+practicing pedigree analysis. However, to fulfill this function, there are a 
+number of interesting functions, i.e. for generating and analysing pedigree 
+problems, that can be used outside of the app, too. In this vignette we would 
+like to present only the central functions. Further information can be found 
+in the documentation of the individual exported functions and in the second 
+vignette.
+
+## Pedigree Problems
+
+The basic function of this app is to provide pedigree problems that can be 
+clearly assigned to one of the basic modes of inheritance: autosomal dominant, 
+autosomal recessive, X-linked dominant, or X-linked recessive.
+
+### Simulate Pedigree Problems
+
+Pedigree problems are simulated using `sim_pedigree_problem()`. The simulation 
+time depends on the mode of inheritance in question, additional function 
+parameters, and chance. (See the second vignette for a detailed analysis of 
+pedana's simulation function regarding simulation time and pedigree structure.) 
+You can define the maximum number of iterations and a time limit. However, 
+lower values will result in reduced chances of generating a pedigree problem 
+successfully. Therefore, you can enforce (and speed up) problem generation by 
+setting `force = TRUE` as additional parameter.
+
+```{r sim_pedigree_problem}
+library(pedana)
+
+# Simulate a pedigree showing an autosomal recessive trait with
+# - max. number of iterations: 20
+# - max. iteration duration in seconds: 2
+problem_1 <- sim_pedigree_problem(inheritance = "AR",
+                                  iter_limit = 10,
+                                  time_limit = 2,
+                                  seed = 1)
+problem_1
+
+# Trying to simulate pedigree showing an X-chromosomal dominant trait
+problem_2 <- try(sim_pedigree_problem(inheritance = "XD",
+                                      iter_limit = 10,
+                                      time_limit = 2, 
+                                      seed = 1))
+
+# Try with more time and iterations or use the force
+# If force = TRUE the function uses a more purposive method for trait simulation
+# and iterates until successful
+problem_3 <- sim_pedigree_problem(inheritance = "XD",
+                                  force = TRUE,
+                                  seed = 1)
+problem_3
+```
+
+### Plot Pedigree Problems
+
+You can use `plot()` to create the typical pedigree plot. However, this 
+function is only a wrapper to the excellent plot method from the *R* package
+`kinship2` (for detail, see `plot.ped()` and `kinship2::plot.pedigree()`). 
+
+```{r pedigree-plot, fig.width = 7, fig.height = 4, fig.retina = 2}
+plot(problem_1)
+```
+
+### Show Solution
+
+To see a solution to an existing pedigree problem, you have two options: First,
+you can use `show_solution()` to create an condensed data frame including, 
+line-by-line, all hints necessary to determine the present mode of inheritance. 
+Second, you can use `verbalise_solution()`, which creates a textual description 
+of the solution in German or English. Optional, you can select whether to 
+include evidence in the output or not.
+
+```{r solution}
+verbalise_solution(problem_1, details = TRUE, l = "en")
+show_solution(problem_1, complete = TRUE)
+```
+
+### Other Helper Functions
+
+## Practice Pedigree Analysis
+
+To start practicing pedigree analysis run the Shiny app `pedana` via 
+`run_pedigree_analysis()`.
+
+```{r run_pedigree_analysis, eval = FALSE}
+run_pedigree_analysis()
+```
+
+# Acknowledgements
+
+The idea for this package and some of the preliminary work was done during 
+my work for the project "Bildungsgerechtigkeit im Fokus" (Educational 
+Equity in Focus) at the [University of Duisburg-Essen](https://www.uni-due.de). 
+In addition, several people have supported me in various ways in the 
+development of this app. First of all, I would like to thank Julia Surmann, who 
+did a preliminary work on the development of the pedigree simulation function 
+as part of her master's thesis. In addition, I would like to thank Prof. 
+Philipp Schmiemannn, Prof. Christian Johannes, Dr. Yvonne Lettmann, Dr. Markus 
+Bergmann, Julia Franken, Annika Brechmann, and René Doernemann for great hints 
+and ideas from both, genetic and educational perspectives. 
+
+The project "Bildungsgerechtigkeit im Fokus" was financially supported by 
+the German Federal Ministry of Education and Research as part of the 
+Qualitätspakt Lehre (Quality Pact Teaching) under grant number 01PL16075. 
+The responsibility for the content of this publication is held by the author.

@@ -1,0 +1,191 @@
+---
+title: "Detailed Analysis of pedana's Core Simulation Function"
+author: "Justin Timm"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Detailed Analysis of pedana's Core Simulation Function}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+abstract: ""
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+ggplot2::theme_set(ggplot2::theme_classic())
+
+if (! requireNamespace("bench", quietly = TRUE) || 
+    ! requireNamespace("dplyr", quietly = TRUE) || 
+    ! requireNamespace("kableExtra", quietly = TRUE) ||
+    ! requireNamespace("ggplot2", quietly = TRUE))
+  stop("Can't knit the pedana benchmark vignette, at least one required ",
+       "package is missing.")
+
+load("pedana-benchmarks.RData")
+```
+
+# pedana
+
+`pedana` is an *R* package providing functions to generate pedigrees for the
+typical modes of inheritance: autosomal dominant, autosomal recessive, X-linked
+dominant, and X-linked recessive. The core function to use for normal users is
+`sim_pedigree_problem()`. Basically, this function is a wrapper to multiple
+internal functions generating the pedigree structure and transmitting the trait.
+However, pedigree generation does not necessarily complete the pedigree problem
+simulation. This depends on whether a conclusively determinable pedigree has
+been generated. If not, the simulation must be continued or restarted. For
+X-linked modes of inheritance, this is often the case and problem simulation
+can take a relatively long time (in some cases longer than one minute).
+To address this problem, I have developed specialized simulation functions
+for both X-linked modes of inheritance to speed up the problem generation.
+This mode can be activated by setting the `force` argument in
+`sim_pedigree_problem()` to `TRUE`. An example of this can also be found in the
+main vignette.
+
+## Benchmarking and Analysing `sim_pedigree_problem()`
+
+Using package `bench` allows to illustrate the effect of `force` and
+`inheritance` by estimating `sim_pedigree_problem()` execution times as a
+function of `inheritance` and `force`. In addition, it seems worthwhile to
+take a closer look at the structure of the simulated pedigrees to ensure that 
+there are no interfering correlations between superficial pedigree features 
+(such as trait frequency) and the mode of inheritance.
+
+## Execution Times
+
+```{r, echo = F}
+execution_times <- bench_data |> 
+  dplyr::filter(force == TRUE) |> 
+  dplyr::summarise(mean = mean(time), 
+                   sd = sd(time)) |>
+  round(digits = 2)
+
+n_data <- NROW(bench_data[bench_data$inheritance == "Autosomal Dominant" &
+                            bench_data$force == TRUE, ])
+```
+
+In general, the simulation functions are able to generate pedigree problems 
+for the learning app at reasonable execution times.^[Simulations were performed 
+on a Macbook Air (Retina, 2018). A set of `r n_data` pedigree problems was 
+generated for each parameter combination, giving a total of `r n_data * 8` 
+pedigrees.] It can be assumed that a mean simulation duration of 
+*M* = `r sprintf("%.2f", execution_times$mean)` s 
+(*SD* = `r sprintf("%.2f", execution_times$sd)` s) is not perceived to 
+distracting by learners. Note: Values of mean and standard deviation are 
+estimated based on execution times generated with argument `force` set to 
+`TRUE`, as in the app. This must be taken into account when interpreting the 
+following table displaying execution times.
+
+```{r bench-table, include = TRUE, echo = FALSE, message = FALSE, warning = FALSE}
+bench_data |>
+  dplyr::select(inheritance, force, time) |>
+  dplyr::group_by(inheritance, force) |>
+  dplyr::summarise(`min` = bench::as_bench_time(min(time)),
+                   `mean` = bench::as_bench_time(mean(time)),
+                   `75%` = bench::as_bench_time(quantile(time, prob = .75)),
+                   `95%` = bench::as_bench_time(quantile(time, prob = .95)),
+                   `max` = bench::as_bench_time(max(time)),
+                   .groups = "drop_last") |>
+  kableExtra::kbl() |>
+  kableExtra::kable_styling(bootstrap_options = c("striped", "hover"))
+```
+
+The following results impressively show the advantage of the `force` on the
+simulation duration for X-linked modes of inheritance. Since no optimized
+functions exist for the autosomal modes of inheritances, the simulation times
+do not differ significantly here.
+
+```{r bench-plot, include = TRUE, echo = FALSE, message = FALSE, warning = FALSE, fig.width = 7, fig.height = 4, fig.retina = 2}
+bench_data |>
+  ggplot2::ggplot(ggplot2::aes(x = inheritance, y = time, color = force)) +
+  bench::scale_y_bench_time() +
+  ggplot2::geom_boxplot() +
+  ggplot2::labs(x = "Force Used for Pedigree Simulation",
+                y = "Time")
+```
+
+## Proportion Affected
+
+The proportion affected (PR) describes the proportion of affected individuals
+among all family members:
+
+$$PA = \frac{n_{\text{affected}}}{n_{\text{total}}} $$
+
+The range of possible values can theoretically range from 0 to 1. Nevertheless,
+these limits cannot be found among the simulated pedigrees, because, obviously,
+they cannot be assigned to one mode of inheritance without doubt.
+
+```{r prop-affected-table, include = TRUE, echo = FALSE, message = FALSE, warning = FALSE}
+bench_data |>
+  dplyr::group_by(inheritance) |>
+  dplyr::summarise(`min` = min(prop_affected),
+                   `25%` = quantile(prop_affected, prob = .25),
+                   `mean` = mean(prop_affected),
+                   `75%` = quantile(prop_affected, prob = .75),
+                   `max` = max(prop_affected),
+                   `SD` = sd(prop_affected)) |>
+  kableExtra::kbl(digits = 2) |>
+  kableExtra::kable_styling(bootstrap_options = c("striped", "hover"))
+```
+
+The results of the simulation indicate that the autosomal modes of inheritance
+cannot be differentiated by the proportion of affected individuals, as desired.
+Actually, deviations in the proportion are only noticeable in the case of
+X-linked recessive inheritance, where pedigrees with few affected individuals
+predominate. However, it has not yet been possible to optimise the corresponding
+simulation function without accepting other disadvantages.
+
+```{r prop-affected-plot, include = TRUE, echo = FALSE, message = FALSE, warning = FALSE, fig.width = 7, fig.height = 4, fig.retina = 2}
+ggplot2::ggplot(data = bench_data, ggplot2::aes(x = prop_affected, color = force)) +
+  ggplot2::geom_density(alpha = 0.2) +
+  ggplot2::facet_wrap(. ~ inheritance, scales = "free_y") +
+  ggplot2::scale_x_continuous(limits = c(0, 1)) +
+  ggplot2::labs(x = "Proportion Affected (PA)",
+                y = "Density")
+```
+
+## Gender Ratio
+
+The gender ratio (GR) describes the gender ratio among affected and can range
+from -1 to 1:
+
+$$GR = \frac{n_{\text{affected males}} - n_{\text{affected females}}}{n_{\text{affected males}} + n_{\text{affected females}}} $$
+
+The smallest possible value of -1 emerges when
+only females are affected. The maximum value of 1 occurs when only males are
+affected. A value of 0 represents a pedigree where men and women are affected
+equally often.
+
+Analysis of the simulated pedigrees shows that, on average, males and females
+are equally affected in the autosomal modes of inheritance. Nevertheless, there
+is a considerable variance. This means that the `sim_pedigree_problem()`
+function can generate pedigrees with a gender imbalance among affected persons
+which can nevertheless be uniquely determined as autosomal. Thus, an imbalance
+does not necessarily indicate X-linked inheritance.
+
+```{r gender-ratio-table, include = TRUE, echo = FALSE, message = FALSE, warning = FALSE, fig.show="hold", out.width="50%"}
+bench_data |>
+  dplyr::group_by(inheritance) |>
+  dplyr::summarise(`min` = min(gender_ratio),
+                   `25%` = quantile(gender_ratio, prob = .25),
+                   `mean` = mean(gender_ratio),
+                   `75%` = quantile(gender_ratio, prob = .75),
+                   `max` = max(gender_ratio),
+                   `SD` = sd(gender_ratio),
+                   .groups = "drop_last") |>
+  kableExtra::kbl(digits = 2) |>
+  kableExtra::kable_styling(bootstrap_options = c("striped", "hover"))
+```
+
+As expected, females are more frequently affected in pedigrees showing an
+X-linked dominant inheritance and males are more frequently affected in
+pedigrees representing an X-linked recessive inheritance.
+
+```{r gender-ratio-plot, include = TRUE, echo = FALSE, message = FALSE, warning = FALSE, fig.width = 7, fig.height = 4, fig.retina = 2}
+ggplot2::ggplot(data = bench_data, ggplot2::aes(x = gender_ratio, color = force)) +
+  ggplot2::geom_density(alpha = 0.2) +
+  ggplot2::facet_wrap(. ~ inheritance, scales = "free_y") +
+  ggplot2::scale_x_continuous(limits = c(-1, 1)) +
+  ggplot2::labs(x = "Gender Ratio Among Affected (GR)",
+                y = "Density")
+```

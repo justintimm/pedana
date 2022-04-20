@@ -1,0 +1,45 @@
+---
+title: "manual"
+output: html_document
+---
+
+# Pedigree Analysis via Learning App pedana
+
+## pedana
+
+**pedana** (Syllabic abbreviation of <i><u>ped</u>igree <u>ana</u>lysis</i>) is
+a learning app for practicing to analyze pedigrees.
+
+* You can practice as long as you want.
+* You will constantly get new tasks on all modes of inheritance.
+* You can choose from 4 difficulty levels.
+* You will receive a detailed feedback for your analysis.
+
+## Aim of the Pedigree Analysis
+
+A typical goal in pedigree analysis is to identify the mode of inheritance 
+explaining the distribution of the outlined trait. In this regard, it is 
+reasonable to stepwise exclude modes of inheritance that are incapable of 
+explaining the observed distribution of the trait. This could be called 
+a *strategy of stepwise falsification*. The app guides you to use this 
+strategy in order to identify the present mode of inheritance.
+
+### The app offers four levels of difficulty:
+
+* **Level 1**: Ideal for getting used to the app and how to build a good solution. You will be shown a complete worked-out example including detailed feedback.
+* **Level 2**: Ideal for getting started with pedigree analysis using the app. A sample solution for two modes of inheritance is given. Complete the argumentation and get detailed feedback. 
+* **Level 3**: Ideal for practicing how to formulate a complete and coherent argumentation. You will get an open task. Create a complete argumentation and get detailed feedback.
+* **Level 4**: Practice pedigree analysis under exam conditions. An open task is given. Create a complete argumentation. You can't edit your input after receiving a short feedback.
+
+### How the Analysis Works
+
+* Analyse the pedigree.
+* Use the <i class='fa fa-plus'></i>-button to add an argument.
+* When you are ready, use the <i class='fa fa-check'></i>-button to check your argumentation.
+* You will receive feedback to your argumentation.
+* Levels 2 and 3: Use the <i class='fa fa-edit'></i>-button to edit your argumentation **once**.
+* Levels 2 and 3: Now you can add new arguments and modify or delete existing ones.
+* Levels 2 and 3: Use the <i class='fa fa-check'></i>-button to recheck your argumentation.
+* Use the <i class='fa fa-home'></i>-button to go back to start. You can create a new pedigree problem right away.
+
+### Good Luck!

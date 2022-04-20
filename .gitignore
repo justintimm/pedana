@@ -1,0 +1,11 @@
+archive
+.Rproj.user
+.Rhistory
+.RData
+
+.DS_Store
+/inst/doc/
+/doc/
+/Meta/
+/inst/pedigree-analysis/ude/
+inst/doc
