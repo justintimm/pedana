@@ -1,6 +1,6 @@
 Package: pedana
 Title: A tool for creating pedigree problems and practicing pedigree analysis
-Version: 0.3.0
+Version: 0.3.1
 Authors@R: 
     person(given = "Justin",
            family = "Timm",
@@ -22,7 +22,8 @@ Imports:
     utils,
     kinship2,
     shiny,
-    shinyjs
+    shinyjs,
+    markdown
 Suggests: 
     rmarkdown,
     knitr,
