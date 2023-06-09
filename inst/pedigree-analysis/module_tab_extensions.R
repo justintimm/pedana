@@ -20,22 +20,18 @@ module_tab_extensions <- function(id, language) {
                         url = "www/anleitung.Rmd",
                         value = "anleitung",
                         icon = "chalkboard-teacher")
-        } else if (language() == "de") {
-          sapply(c("anleitung", "manual"),
-                 function(x) removeTab(inputId = "pedana", target = x))
-
-          insert_my_tab(title = "Anleitung",
-                        url = "www/anleitung.Rmd",
-                        value = "anleitung",
-                        icon = "chalkboard-teacher")
-        } else if (language() == "en") {
-          sapply(c("anleitung", "manual"),
-                 function(x) removeTab(inputId = "pedana", target = x))
-
           insert_my_tab(title = "Manual",
                         url = "www/manual.Rmd",
                         value = "manual",
                         icon = "chalkboard-teacher")
+
+          hideTab(inputId = "pedana", target = "manual")
+        } else if (language() == "de") {
+          hideTab(inputId = "pedana", target = "manual")
+          showTab(inputId = "pedana", target = "anleitung")
+        } else if (language() == "en") {
+          hideTab(inputId = "pedana", target = "anleitung")
+          showTab(inputId = "pedana", target = "manual")
         }
       }, ignoreNULL = FALSE)
 

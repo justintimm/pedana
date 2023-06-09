@@ -1,6 +1,6 @@
 Package: pedana
 Title: A tool for creating pedigree problems and practicing pedigree analysis
-Version: 0.3.2
+Version: 0.3.2.9001
 Authors@R: 
     person(given = "Justin",
            family = "Timm",
@@ -30,6 +30,8 @@ Suggests:
     bench,
     kableExtra,
     dplyr,
-    knitr
+    knitr,
+    pedanaUDE,
+    pedanaTracking
 VignetteBuilder: knitr
 Config/testthat/edition: 3

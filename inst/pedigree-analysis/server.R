@@ -10,8 +10,6 @@ source("module_argumentation_evaluation.R")
 source("module_modal_message.R")
 source("module_tab_extensions.R")
 
-if (file.exists("ude")) source("ude/module_ude.R")
-
 server <- function(input, output, session) {
 
   language <- module_language_server("language")
@@ -20,9 +18,26 @@ server <- function(input, output, session) {
   argumentation <- module_argumentation_server("argumentation", task,
                                                lvl, language)
 
-  if (file.exists("ude")) module_ude("global", language)
-
   module_tab_extensions("global", language)
+
+  # load js extensions
+  output$js_header_extensions <- renderUI({
+    if (require("pedanaTracking"))
+      pedanaTracking::add_tracking()
+  })
+
+  output$js_body_extensions <- renderUI({
+    if (require("pedanaTracking"))
+      pedanaTracking::add_event_tracking()
+  })
+
+  # load tracking extensions
+  if (require("pedanaTracking"))
+    pedanaTracking::add_tracking_modules("global", task)
+
+  # load ui extensions
+  if (require("pedanaUDE"))
+    pedanaUDE::add_ude_modules("global", language)
 
   output$logo <- renderImage({
     list(src = "www/logo.png",
