@@ -26,7 +26,7 @@ sim_trait_xd <- function(x) {
 
   start_time <- Sys.time()
 
-  if (! class(x) == "ped")
+  if (! inherits(x, "ped"))
     stop("Unexpected input. Expects an object of class `ped`.")
 
   pedigree <- x$data

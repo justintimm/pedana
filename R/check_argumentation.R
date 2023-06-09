@@ -48,7 +48,7 @@ check_argumentation <- function(x,
                                 elaborated_feedback = TRUE,
                                 l = c("en", "de")) {
 
-  if (! class(x) == "ped")
+  if (! inherits(x, "ped"))
     stop("Unexpected input. Expects an object of class `ped`.")
 
   l <- match.arg(l)

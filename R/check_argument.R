@@ -47,7 +47,7 @@ check_argument <- function(x,
                            elaborated_feedback = TRUE,
                            l = c("en", "de")) {
 
-  if (! class(x) == "ped")
+  if (! inherits(x, "ped"))
     stop("Unexpected input. Expects an object of class `ped`.")
 
   l <- match.arg(l)
@@ -57,8 +57,9 @@ check_argument <- function(x,
   exp$inheritance <-
     sub("(confirmed|likely|neutral|unlikely|excluded)", "", argument$claim)
   exp$likelihood <- sub("(AD|AR|XD|XR)", "", argument$claim)
+  exp$id <- seq(NROW(exp))
   fb <- ""
-  score <- 0
+  score <- rep(0, NROW(exp))
 
   # 2 check the argument to provide feedback -----------------------------------
   # 2.1 provide feedback for constellation based arguments ---------------------
@@ -73,21 +74,20 @@ check_argument <- function(x,
 
     if (! NROW(fc) == 1) {
       fb <- tr("fb_const_unknown", l)
-      score <- 0
     } else if (fc$id == 0) {
       fb <- tr("fb_const_uninformative", l)
-      score <- 0
     } else {
       fb <- tr(paste0("fb_const_", fc$id), l)
 
       # compare input and solution
-      res <- merge(exp[, c("inheritance", "likelihood")],
+      fc <- fc[, c("AD", "AR", "XD", "XR")]
+      res <- merge(exp[, c("id", "inheritance", "likelihood")],
                    data.frame("inheritance" = colnames(fc),
                               "likelihood" = unlist(fc)),
                    by = "inheritance")
-      res$correct <- res[, 2] == res[, 3]
+      res$correct <- res[, "likelihood.x"] == res[, "likelihood.y"]
+      res <- res[order(res$id), c("inheritance", "correct")]
 
-      # if (all(res$correct)) fb <- tr("fb_const_correct", l)
       score <- ifelse(res$correct, 1, 0)
 
     }
@@ -96,12 +96,10 @@ check_argument <- function(x,
   # 2.2 provide feedback for superficial arguments -----------------------------
   if (exp[1, "proof"] %in% c("few_affected", "many_affected")) {
     fb <- tr("fb_prevalence", l)
-    score <- 0
   }
 
   if (exp[1, "proof"] %in% c("every_gen", "not_every_gen")) {
     fb <- tr("fb_distribution_pattern", l)
-    score <- 0
   }
 
   if (exp[1, "proof"] == "other_arguments") {
@@ -116,83 +114,61 @@ check_argument <- function(x,
     # 2.3.1 feedback a situation where weak proof results in a strong claim ----
     if (any(exp[, "likelihood"] %in% c("confirmed", "excluded"))) {
       fb <- tr("fb_strong_claim_weak_proof", l)
-      score <- 0
     } else {
 
       # 2.3.2 in depth-feedback: no_male_to_male -------------------------------
-      if (exp[1, "proof"] == "no_male_to_male" &&
-          all(exp$claim %in% c("likelyXD", "unlikelyAD")) &&
-          111 %in% x$analysis$cues$id) {
+      if (exp[1, "proof"] == "no_male_to_male") {
         fb <- tr("fb_no_male_to_male", l)
-        score <- 1
-      } else if (exp[1, "proof"] == "no_male_to_male") {
-        fb <- tr("fb_no_male_to_male", l)
-        score <- 0
+        if (111 %in% x$analysis$cues$id) {
+          score[exp$claim %in% c("likelyXD", "unlikelyAD")] <- 1
+        }
       }
 
       # 2.3.3 in depth-feedback: carrier frequency -----------------------------
-      # 2.3.3.1 no conclusion on dominant inheritance possible
-      else if (exp[1, "proof"] == "carrier_frequency" &&
-               any(exp$inheritance %in% c("AD", "XD"))) {
-        fb <- tr("fb_carrier_frequency_inapplicable", l)
-        score <- 0
-        # 2.3.3.2 clear decisions regarding recessive inheritance modes possible
-      } else if (exp[1, "proof"] == "carrier_frequency" &&
-                 all(x$analysis$conclusion[c(2, 4)] %in%
-                     c("confirmed", "excluded"))) {
-        fb <- tr("fb_carrier_frequency_inapplicable", l)
-        score <- 0
-        # 2.3.3.3 reasonable decision
-      } else if ((exp[1, "proof"] == "carrier_frequency" &&
-                  all(argument$claim %in% c("unlikelyAR", "likelyXR"))) &&
-                 113 %in% x$analysis$cues$id) {
+      else if (exp[1, "proof"] == "carrier_frequency") {
         fb <- tr("fb_carrier_frequency", l)
-        score <- 1
-        # 2.3.3.4 evidence can be applied, but was used incorrectly
-      } else if (exp[1, "proof"] == "carrier_frequency") {
-        fb <- tr("fb_carrier_frequency", l)
-        score <- 0
+        if (all(x$analysis$conclusion[c("AR", "XR")] %in%
+                c("confirmed", "excluded"))) {
+          fb <- tr("fb_carrier_frequency_inapplicable", l)
+        } else if (113 %in% x$analysis$cues$id) {
+          score[exp$claim %in% c("unlikelyAR", "likelyXR")] <- 1
+        }
       }
 
       # 2.3.4 in depth-feedback: mainly_f --------------------------------------
-      else if (exp[1, "proof"] == "mainly_f" &&
-               all(exp$claim %in% c("likelyXD", "unlikelyAD")) &&
-               111 %in% x$analysis$cues$id &&
-               x$analysis$sex_ratio["females"] > 2 &&
-               x$analysis$sex_ratio["ratio"] < .5) {
+      else if (exp[1, "proof"] == "mainly_f") {
         fb <- tr("fb_mainly_f", l)
-        score <- 1
-      } else if (exp[1, "proof"] == "mainly_f") {
-        fb <- tr("fb_mainly_f", l)
-        score <- 0
+        if (111 %in% x$analysis$cues$id &&
+            x$analysis$sex_ratio["females"] > 2 &&
+            x$analysis$sex_ratio["ratio"] < .5) {
+          score[exp$claim %in% c("likelyXD", "unlikelyAD")] <- 1
+        }
       }
 
       # 2.3.5 in depth-feedback: mainly_m --------------------------------------
-      else if (exp[1, "proof"] == "mainly_m" &&
-               all(exp$claim %in% c("likelyXR", "unlikelyAR")) &&
-               113 %in% x$analysis$cues$id &&
-               x$analysis$sex_ratio["males"] > 2 &&
-               x$analysis$sex_ratio["ratio"] > 2) {
+      else if (exp[1, "proof"] == "mainly_m") {
         fb <- tr("fb_mainly_m", l)
-        score <- 1
-      } else if (exp[1, "proof"] == "mainly_m") {
-        fb <- tr("fb_mainly_m", l)
-        score <- 0
+        if (113 %in% x$analysis$cues$id &&
+            x$analysis$sex_ratio["males"] > 2 &&
+            x$analysis$sex_ratio["ratio"] > 2) {
+          score[exp$claim %in% c("likelyXR", "unlikelyAR")] <- 1
+        }
       }
 
       # 2.3.5 in depth-feedback: m_and_f ---------------------------------------
       else if (exp[1, "proof"] %in% "m_and_f") {
         fb <- tr("fb_gender_ratio", l)
-        score <- 0
       }
 
     }
   }
 
-  if (exp[1, "proof"] == "const" && score == 1) {
+  if (exp[1, "proof"] == "const" && all(score == 1)) {
     kr <- tr("fb_const_correct", l)
-  } else if (score == 1) {
+  } else if (all(score == 1)) {
     kr <- tr("fb_superficial_correct", l)
+  } else if (any(score == 1)) {
+    kr <- tr("fb_partially_correct", l)
   } else {
     kr <- tr("fb_incorrect", l)
   }

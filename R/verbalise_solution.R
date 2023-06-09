@@ -77,7 +77,7 @@ verbalise_solution <- function(x,
                                details = FALSE,
                                l = c("en", "de")) {
 
-  if (! class(x) == "ped")
+  if (! inherits(x, "ped"))
     stop("Unexpected input. Expects an object of class `ped`.")
 
   l <- match.arg(l)

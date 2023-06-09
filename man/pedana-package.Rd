@@ -6,7 +6,7 @@
 \alias{pedana-package}
 \title{pedana: A tool for creating pedigree problems and practicing pedigree analysis}
 \description{
-\if{html}{\figure{logo.png}{options: align='right' alt='logo' width='120'}}
+\if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 
 'pedana' is an R package which at its core provides a learning app for practicing pedigree analysis. In addition, it provides the necessary functions to simulate pedigree problems and to analyze and feedback students' reasoning.
 }

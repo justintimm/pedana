@@ -18,7 +18,7 @@
 #' @md
 show_solution <- function(x, complete = TRUE) {
 
-  if (! class(x) == "ped")
+  if (! inherits(x, "ped"))
     stop("Unexpected input. Expects an object of class `ped`.")
 
   # trim solution --------------------------------------------------------------

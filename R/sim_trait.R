@@ -118,7 +118,7 @@ sim_trait <- function(x,
 
   inheritance <- match.arg(inheritance)
 
-  if (! class(x) == "ped")
+  if (! inherits(x, "ped"))
     stop("Unexpected input. Expects an object of class `ped`.")
 
   if (! is.numeric(allele_freq) || ! allele_freq < 1 || ! allele_freq > 0)

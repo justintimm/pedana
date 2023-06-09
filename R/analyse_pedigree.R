@@ -61,7 +61,7 @@
 #' @md
 analyse_pedigree <- function(x) {
 
-  if (! class(x) == "ped")
+  if (! inherits(x, "ped"))
     stop("Unexpected input. Expects an object of class `ped`.")
 
   unique_solution <- FALSE
