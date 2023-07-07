@@ -10,6 +10,8 @@ source("module_argumentation_evaluation.R")
 source("module_modal_message.R")
 source("module_tab_extensions.R")
 
+static_task_id <<- 1
+
 server <- function(input, output, session) {
 
   language <- module_language_server("language")

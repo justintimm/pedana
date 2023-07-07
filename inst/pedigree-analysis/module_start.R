@@ -43,20 +43,20 @@ module_start_server <- function(id, language) {
       output$lvl_description <- renderText({ lvl_description() })
 
       observeEvent(input$lvl1, {
-        shinyjs::hide(id = "start")
-        lvl(1)
+        # shinyjs::hide(id = "start")
+        # lvl(1)
       })
       observeEvent(input$lvl2, {
-        shinyjs::hide(id = "start")
-        lvl(2)
+        # shinyjs::hide(id = "start")
+        # lvl(2)
       })
       observeEvent(input$lvl3, {
         shinyjs::hide(id = "start")
         lvl(3)
       })
       observeEvent(input$lvl4, {
-        shinyjs::hide(id = "start")
-        lvl(4)
+        # shinyjs::hide(id = "start")
+        # lvl(4)
       })
 
       lvl

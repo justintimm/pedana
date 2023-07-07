@@ -187,8 +187,21 @@ module_argumentation_server <- function(id, task, lvl, language) {
       })
 
       observeEvent(input$stop, {
-        refresh <- module_modal_message("refresh", "back_to_start", language())
-        observeEvent(refresh(), { session$reload() })
+
+        if (static_task_id < 2) {
+          static_task_id <<- static_task_id + 1
+          refresh <- module_modal_message("refresh", "back_to_start", language())
+          observeEvent(refresh(), {
+            session$reload()
+          })
+        } else {
+          refresh <- module_modal_message("refresh", "back_to_start", language())
+          observeEvent(refresh(), {
+            stopApp()
+          })
+
+        }
+
       })
 
     }
