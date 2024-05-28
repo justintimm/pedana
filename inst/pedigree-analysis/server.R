@@ -13,10 +13,28 @@ source("module_tab_extensions.R")
 server <- function(input, output, session) {
 
   language <- module_language_server("language")
-  lvl <- module_start_server("start", language)
-  task <- module_task_server("task", lvl, language)
+
+  # documentation of javascript function Shiny.setInputValue
+  # https://shiny.posit.co/r/articles/build/communicating-with-js/
+  # I don't know why, but the function does not work properly within the language module
+  shinyjs::runjs("Shiny.setInputValue('language-browserLanguage', navigator.language);")
+
+  # update language
+  # necessary, as the module does not recognise the global inputs
+  observeEvent(input$switch_language_de, {
+    language("de")
+  })
+
+  # update language
+  # necessary, as the module does not recognise the global inputs
+  observeEvent(input$switch_language_en, {
+    language("en")
+  })
+
+  request <- module_start_server("start", language)
+  task <- module_task_server("task", request, language)
   argumentation <- module_argumentation_server("argumentation", task,
-                                               lvl, language)
+                                               request, language)
 
   module_tab_extensions("global", language)
 

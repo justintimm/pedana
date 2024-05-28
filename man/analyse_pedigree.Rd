@@ -25,8 +25,8 @@ monitored and represents the basic framework of the analysis.
 \item Unaffected female with affected father: excludes XD
 \item Affected female with unaffected father: excludes XR
 \item Unaffected  male with affected mother: excludes XR
-\item Fathers transmit the trait to all daughters,
-but not to sons: likely XD, unlikely AD
+\item All daughters, but no sons of affected males are affected as well:
+likely XD, unlikely AD
 \item The number of independent alleles required differs noticeably for
 the two recessive modes of inheritance: likely XR, unlikely AR
 }

@@ -6,20 +6,19 @@ module_argumentation_ui <- function(id) {
       id = ns("argumentation"),
       class = "div-argumentation",
       tagList(
-        fluidRow(column(12, align = "right",
-                        actionButton(ns("stop"), label = "", icon = icon("home")),
-                        shinyjs::disabled(actionButton(ns("edit"), label = "", icon = icon("edit"))),
-                        actionButton(ns("add_arg"), label = "", icon = icon("plus")),
-                        actionButton(ns("check_arg"), label = "", icon = icon("check")))),
-        fluidRow(column(12, align = "center",
-                        div(class = "custom_table", tableOutput(ns("feedback"))))),
+        fluidRow(column(8, align = "left",
+                        shinyjs::disabled(actionButton(ns("edit"), label = textOutput(ns("edit_label")), icon = icon("edit"))),
+                        actionButton(ns("check_arg"), label = textOutput(ns("check_arg_label")), icon = icon("check")),
+                        actionButton(ns("next_task"), label = textOutput(ns("next_task_label")), icon = icon("forward-fast"))),
+                 column(4, align = "right",
+                        actionButton(ns("stop"), label = textOutput(ns("stop_label")), icon = icon("right-from-bracket")))),
         div(id = ns("argbox"), style = "float: middle")
       )
     )
   )
 }
 
-module_argumentation_server <- function(id, task, lvl, language) {
+module_argumentation_server <- function(id, task, request, language) {
   moduleServer(
     id,
     function(input, output, session) {
@@ -27,90 +26,94 @@ module_argumentation_server <- function(id, task, lvl, language) {
       argumentID <- reactiveVal(0L)
       feedbackID <- reactiveVal(0L)
       analysisID <- reactiveVal(0L)
-      arguments <- reactiveValues()
+      taskID <- reactiveVal(0L)
+
+      argument_list <- reactiveValues()
       argumentation <- reactiveValues()
       feedback <- reactiveValues()
+
+      update_argumentation <- reactiveValues(data = NULL,
+                                             action = 0L)
+
       show_feedback <- reactiveVal(NULL)
-      lvl_dep_navi <- reactiveVal(NULL)
+      next_task <- reactiveVal(NULL)
 
       observeEvent(task$pedigree, {
         shinyjs::show(id = "argumentation")
       })
 
-      observeEvent(lvl(), {
+      observeEvent(request$lvl, {
+
         ns <- session$ns
 
-        if (lvl() == 1) {
-          solution <- show_solution(reactiveValuesToList(task)$pedigree,
-                                    complete = TRUE)
-          for (i in seq_len(NROW(solution))) {
+        if (taskID() == 0) {
+          # create an argbox for each mode of inheritance
+          for (i in c("AD", "AR", "XD", "XR")) {
             argumentID(argumentID() + 1)
 
             insertUI(selector = "#argumentation-argbox", where = "beforeEnd",
                      ui = module_argument_ui(ns(argumentID()),
-                                             value = solution[i, ],
-                                             l = language()))
+                                             moi = i,
+                                             value = NULL,
+                                             language = reactive(language())))
 
-            arguments[[paste0("id:", isolate(argumentID()))]] <-
+            module_argument_server(argumentID(),
+                                   action = reactive(update_argumentation$action),
+                                   data = reactive(update_argumentation$data),
+                                   language = reactive(language()))
+
+            argument_list[[paste0("id:", isolate(argumentID()))]] <-
               list(id = isolate(argumentID()),
-                   eval = module_argument_server(argumentID()),
                    fb = NULL)
           }
-
-          shinyjs::delay(500, shinyjs::click("check_arg"))
-          shinyjs::delay(550, sapply(c("add_arg", "check_arg"),
-                                     function(x) shinyjs::disable(x)))
-        } else if (lvl() == 2) {
-          solution <- show_solution(reactiveValuesToList(task)$pedigree,
-                                    complete = FALSE)
-          for (i in seq_len(NROW(solution))) {
-            argumentID(argumentID() + 1)
-
-            insertUI(selector = "#argumentation-argbox", where = "beforeEnd",
-                     ui = module_argument_ui(ns(argumentID()),
-                                             value = solution[i, ],
-                                             l = language()))
-
-            arguments[[paste0("id:", isolate(argumentID()))]] <-
-              list(id = isolate(argumentID()),
-                   eval = module_argument_server(argumentID()),
-                   fb = NULL)
-          }
-          shinyjs::click("add_arg")
-          lvl_dep_navi(c("edit", "add_arg", "check_arg"))
-        } else if (lvl() == 3) {
-          shinyjs::click("add_arg")
-          lvl_dep_navi(c("edit", "add_arg", "check_arg"))
-        } else if (lvl() == 4) {
-          shinyjs::click("add_arg")
-          lvl_dep_navi(c("add_arg", "check_arg"))
         }
 
-      })
+        # update argboxes based on the selected level and task
+        if (request$lvl == 1) {
 
-      observeEvent(input$add_arg, {
-        ns <- session$ns
-        argumentID(argumentID() + 1)
+          # find solution
+          solution <- show_solution(reactiveValuesToList(task)$pedigree)
 
-        insertUI(selector = "#argumentation-argbox", where = "beforeEnd",
-                 ui = module_argument_ui(ns(argumentID()), l = language()))
+          # update arguments
+          shinyjs::delay(10, update_argumentation$data <- solution)
+          shinyjs::delay(20, update_argumentation$action <-
+                           update_argumentation$action + 1)
 
-        arguments[[paste0("id:", isolate(argumentID()))]] <-
-          list(id = isolate(argumentID()),
-               eval = module_argument_server(argumentID()),
-               fb = NULL)
+          # switch to feedback mode
+          shinyjs::delay(30, shinyjs::click("check_arg"))
+          shinyjs::delay(40, shinyjs::disable("check_arg"))
+
+          # show prompt to foster self-explanation
+          module_modal_message("prompt", "self_explanation_prompt",
+                               language(), taskID = isolate(taskID()))
+
+        } else if (request$lvl == 2) {
+
+          # find solution
+          solution <- show_solution(reactiveValuesToList(task)$pedigree,
+                                    step = request$step)
+
+          # update arguments
+          shinyjs::delay(10, update_argumentation$data <- solution)
+          shinyjs::delay(20, update_argumentation$action <-
+                           update_argumentation$action + 1)
+
+          # show prompt to foster self-explanation
+          module_modal_message("prompt", "task_completion_prompt", language())
+
+        }
+
       })
 
       observeEvent(input$check_arg, {
         ns <- session$ns
         feedbackID(feedbackID() + 1)
 
-        elaborated_feedback <- ifelse(lvl() > 3, FALSE, TRUE)
+        elaborated_feedback <- ifelse(analysisID() > 0, TRUE, FALSE)
 
         argumentation[[paste0("id:", isolate(feedbackID()))]] <-
-          sapply(rv_to_ordered_list(arguments),
-                 function(x) if (x$eval())
-                   module_argument_aggregation(x$id, input),
+          sapply(rv_to_ordered_list(argument_list),
+                 function(x) module_argument_aggregation(x$id, input),
                  simplify = FALSE)
 
         feedback[["result"]] <-
@@ -131,65 +134,148 @@ module_argumentation_server <- function(id, task, lvl, language) {
 
         observeEvent(show_feedback(), {
 
-          show_feedback(NULL)
+          shinyjs::disable("check_arg")
 
-          # after one revision or full score the edit mode is always blocked
-          if (analysisID() > 1 || feedback$result$score() == 4)
-            lvl_dep_navi(c("add_arg", "check_arg"))
-
-          sapply(lvl_dep_navi(), function(x) shinyjs::toggleState(x))
           sapply(feedback$result$argumentation(), function(x)
             module_argument_modification(x[["id"]], x, "color"))
 
-          if (lvl() > 1) {
+          if (request$lvl > 1) {
             if (feedback$result$score() == 4) {
+
               # final feedback, full score
               module_modal_message(feedbackID(), "solution_complete", language())
-            } else if (lvl() == 4 || analysisID() > 1) {
+
+            } else if (analysisID() == 1) {
+
+              # incomplete score, revision possible
+              module_modal_message(feedbackID(), "try_again_feedback",
+                                   language())
+
+              # enable edit button
+              shinyjs::enable("edit")
+
+            } else if (analysisID() == 2) {
+
+              # incomplete score, revision possible
+              module_modal_message(feedbackID(), "elaborated_feedback",
+                                   language())
+
+              # enable edit button
+              shinyjs::enable("edit")
+
+            } else if (analysisID() == 3) {
               # final feedback, incomplete score, explain correct solution
               module_modal_message(
                 feedbackID(), "solution_incomplete_kcr", language(),
                 verbalise_solution(reactiveValuesToList(task)$pedigree,
-                                   details = ifelse(lvl() == 4, FALSE, TRUE),
+                                   details = ifelse(request$lvl == 4, FALSE, TRUE),
                                    l = language()))
-            } else {
-              # incomplete score, revision possible
-              module_modal_message(feedbackID(), "solution_incomplete",
-                                   language())
             }
           }
 
-          output$feedback <-
-            renderTable({
-              ns <- session$ns
-              feedback$result$table()
-            },
-            spacing = "m",
-            width = "80%",
-            align = "lrc",
-            na = "",
-            caption = pedana:::tr("fb_table_footer", language()),
-            sanitize.text.function = function(x) x)
         })
 
         # show conditional panel scoring based on reactiveVal
-        output$show_scoring <- reactive({
-          show_feedback()
-        })
+        # output$show_scoring <- reactive({
+        #   show_feedback()
+        # })
 
       })
 
       observeEvent(input$edit, {
-        output$feedback <- NULL
-        sapply(lvl_dep_navi(), function(x) shinyjs::toggleState(x))
+
+        show_feedback(NULL)
+
+        # reset checkbutton
+        shinyjs::disable("edit")
+        shinyjs::enable("check_arg")
+
+        # uncolor arg-boxes
         sapply(feedback$result$argumentation(), function(x)
           module_argument_modification(x[["id"]], x, "uncolor"))
+
       })
 
       observeEvent(input$stop, {
         refresh <- module_modal_message("refresh", "back_to_start", language())
-        observeEvent(refresh(), { session$reload() })
+        observeEvent(refresh(), {
+          session$reload()
+        })
       })
+
+      observeEvent(input$next_task, {
+
+        if (is.null(feedback$result)) {
+          next_task <- module_modal_message("next", "next_task", language())
+        } else if (! is.null(feedback$result$notes())) {
+          next_task <- module_modal_message("next", "next_task", language())
+        } else if (feedback$result$score() == 4) {
+          next_task(TRUE)
+        } else {
+          next_task <- module_modal_message("next", "next_task", language())
+        }
+
+        observeEvent(next_task(), {
+
+          taskID(taskID() + 1)
+
+          # reset trial counter
+          analysisID(0L)
+          feedbackID(0L)
+
+          new_level <- isolate(request$lvl)
+          request$lvl <- 0L
+
+          # check whether to reset from input or feedback mode
+          if (! is.null(show_feedback())) {
+
+            # reset checkbutton
+            shinyjs::enable("check_arg")
+
+            # uncolor arg-boxes
+            sapply(feedback$result$argumentation(), function(x)
+              module_argument_modification(x[["id"]], x, "erase"))
+
+            show_feedback(NULL)
+
+            if (feedback$result$score() == 4)
+              request$step <- as.numeric(request$step) + 1
+
+            if (new_level == 2 && as.numeric(request$step) > 12)
+              new_level <- 3
+
+          }
+
+          # triggers reset of arg-boxes
+          update_argumentation$data <- NULL
+          update_argumentation$action <- update_argumentation$action + 1L
+
+          feedback$result <- NULL
+          argumentation[["id:1"]] <- argumentation[["id:2"]] <- argumentation[["id:3"]] <- NULL
+
+          request$seed <- sample(10000:99999, 1)
+          request$lvl <- new_level
+        })
+      })
+
+      # language adaptivity ----------------------------------------------------
+
+      edit_label <- reactiveVal("")
+      check_arg_label <- reactiveVal("")
+      next_task_label <- reactiveVal("")
+      stop_label <- reactiveVal("")
+
+      observe({
+        edit_label(pedana:::tr("edit_label", language()))
+        check_arg_label(pedana:::tr("check_arg_label", language()))
+        next_task_label(pedana:::tr("next_task_label", language()))
+        stop_label(pedana:::tr("stop_label", language()))
+      })
+
+      output$edit_label <- renderText({ edit_label() })
+      output$check_arg_label <- renderText({ check_arg_label() })
+      output$next_task_label <- renderText({ next_task_label() })
+      output$stop_label <- renderText({ stop_label() })
 
     }
   )

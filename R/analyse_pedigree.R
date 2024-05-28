@@ -21,8 +21,8 @@
 #' * Unaffected female with affected father: excludes XD
 #' * Affected female with unaffected father: excludes XR
 #' * Unaffected  male with affected mother: excludes XR
-#' * Fathers transmit the trait to all daughters,
-#'      but not to sons: likely XD, unlikely AD
+#' * All daughters, but no sons of affected males are affected as well:
+#'    likely XD, unlikely AD
 #' * The number of independent alleles required differs noticeably for
 #'      the two recessive modes of inheritance: likely XR, unlikely AR
 #'

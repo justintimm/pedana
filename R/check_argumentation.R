@@ -56,75 +56,70 @@ check_argumentation <- function(x,
   argumentation <- lapply(argumentation, function(i)
     check_argument(x, i[1:6], elaborated_feedback, l))
 
-  df <- lapply(argumentation, function(x) data.frame(claim = x$claim,
-                                                     score = x$score))
+  df <- lapply(argumentation, function(x)
+    data.frame(claim = x$claim,
+               conclusion_score = x$conclusion_score,
+               evidence_score = x$evidence_score))
 
   df <- do.call("rbind", df)
   df$inheritance <-
     sub("(confirmed|likely|neutral|unlikely|excluded)", "", df$claim)
   df$likelihood <- sub("(AD|AR|XD|XR)", "", df$claim)
 
-  # two or more modes of inheritance were labeled as confirmed or likely -------
-  tab <- table(df[df$likelihood %in% c("confirmed", "likely"), "inheritance"])
-  confirmation_conflict <- data.frame("inheritance" = c("AD", "AR", "XD", "XR"),
-                                      "confirmation_conflict" = FALSE)
-  if (length(tab) > 1) {
-    confirmation_conflict[confirmation_conflict$inheritance %in% names(tab),
-                          "confirmation_conflict"] <- TRUE
-  }
-
-  # two statements regarding one mode of inheritance contradict each other -----
-  unique_sm <- c(length(unique(df[df$inheritance == "AD", "likelihood"])),
-                 length(unique(df[df$inheritance == "AR", "likelihood"])),
-                 length(unique(df[df$inheritance == "XD", "likelihood"])),
-                 length(unique(df[df$inheritance == "XR", "likelihood"])))
-
   # additional modes of inheritance can be ruled out ---------------------------
-  res <- merge(df[, c("inheritance", "likelihood", "score")],
+  res <- merge(df[, c("inheritance", "likelihood",
+                      "conclusion_score", "evidence_score")],
                data.frame("inheritance" = names(x$analysis$conclusion),
-                          "likelihood" = as.character(x$analysis$conclusion),
-                          "unique_statements" = unique_sm),
+                          "likelihood" = as.character(x$analysis$conclusion)),
                by = "inheritance",
                all = TRUE,
                suffixes = c("_input", "_solution"))
-  res <- merge(res,
-               confirmation_conflict,
-               by = "inheritance",
-               all = TRUE)
 
   res <- res[! duplicated(res$inheritance), ]
 
   # set missing scores to zero -------------------------------------------------
-  res[res$confirmation_conflict, "score"] <- 0
-  res[res$unique_statements > 1, "score"] <- 0
-  res[is.na(res$likelihood_input), "score"] <- 0
+  res[is.na(res$likelihood_input), c("conclusion_score", "evidence_score")] <- 0
 
   # check arguments based on the other arguments -------------------------------
 
   other_arg_as_evidence <-
-    names(which(sapply(argumentation, function(i) NA %in% i$score)))
+    names(which(sapply(argumentation, function(i) NA %in% i$evidence_score)))
 
   if (length(other_arg_as_evidence) > 0) {
-    arg_inheritance <- sub("(confirmed|likely|neutral|unlikely|excluded)", "",
-                           argumentation[[other_arg_as_evidence]][["claim"]])
-    arg_likelihood <- sub("(AD|AR|XD|XR)", "",
-                          argumentation[[other_arg_as_evidence]][["claim"]])
 
-    if (sum(res$score, na.rm = T) == 3 &&
+    arg_claim <- sapply(argumentation, function(x) x$claim)
+    arg_claim <- arg_claim[names(arg_claim) %in% other_arg_as_evidence]
+
+    arg_inheritance<- sub("(confirmed|likely|neutral|unlikely|excluded)", "",
+                          arg_claim)
+    arg_likelihood <- sub("(AD|AR|XD|XR)", "", arg_claim)
+
+    if (length(other_arg_as_evidence) == 1 &&
+        sum(res$evidence_score, na.rm = T) == 3 &&
         length(other_arg_as_evidence) == 1 &&
         length(arg_inheritance) == 1 &&
         length(arg_likelihood) == 1 &&
-        res[res$inheritance == arg_inheritance,
-            "likelihood_solution"] == arg_likelihood) {
-      argumentation[[other_arg_as_evidence]][["fb"]] <-
-        tr("fb_const_correct", l)
-      argumentation[[other_arg_as_evidence]][["score"]] <- 1
-      res$score[is.na(res$score)] <- 1
+        argumentation[[other_arg_as_evidence]][["conclusion_score"]] == 1) {
+
+      argumentation[[other_arg_as_evidence]][["evidence_score"]] <- 1
+      res$evidence_score[is.na(res$evidence_score)] <- 1
+
+      argumentation[[other_arg_as_evidence]] <-
+        check_argument(x, argumentation[[other_arg_as_evidence]],
+                       elaborated_feedback, l)
+
     } else {
-      argumentation[[other_arg_as_evidence]][["fb"]] <-
-        tr("fb_incorrect", l)
-      argumentation[[other_arg_as_evidence]][["score"]] <- 0
-      res$score[is.na(res$score)] <- 0
+      # multiple explanations could refer to 'other arguments'
+      # create individual feedback for each
+      for (i in other_arg_as_evidence) {
+
+        argumentation[[i]][["evidence_score"]] <- 0
+        res$evidence_score[is.na(res$evidence_score)] <- 0
+
+        argumentation[[i]] <- check_argument(x, argumentation[[i]],
+                                             elaborated_feedback, l)
+
+      }
     }
   }
 

@@ -10,17 +10,18 @@ check_argument(x, argument, elaborated_feedback = TRUE, l = c("en", "de"))
 \item{x}{Object of class \code{ped}, usually created using the
 \code{\link[=sim_pedigree_problem]{sim_pedigree_problem()}} function.}
 
-\item{argument}{List containing at least one claim plus proof. Each claim
-needs to consist of one qualifier - confirmed, likely, neutral, unlikely,
+\item{argument}{List containing one claim plus proof. Each claim
+needs to consist of one qualifier - confirmed, likely, unlikely,
 excluded - plus inheritance in the two-letter code - AD, AR, XD, XR - i.e.
 \code{excludedAR}. Possible options for proof are: \code{const}, \code{few_affected},
 \code{many_affected}, \code{m_and_f}, \code{mainly_m}, \code{mainly_f}, \code{every_gen},
-\code{not_every_gen}, \code{no_male_to_male}, \code{carrier_frequency}, \code{other_arguments}.
+\code{not_every_gen}, \code{no_male_to_male}, \code{carrier_frequency_low},
+\code{carrier_frequency_high}, \code{other_arguments}.
 In addition, the list must also include variables father, mother, and child
 for specifying a family constellation. If not needed, these
 variables can be set to \code{NA}. For consistency reasons, each argument should
 also be given an \code{id}, which is used in the app and necessary for
-\code{\link[=check_argumentation]{check_argumentation()}} to work.See the examples section to see a complete
+\code{\link[=check_argumentation]{check_argumentation()}} to work. See the examples section to see a complete
 argument.}
 
 \item{elaborated_feedback}{If \code{FALSE}, a verbal feedback about the

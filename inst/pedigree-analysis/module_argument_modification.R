@@ -7,12 +7,10 @@ module_argument_modification <- function(id, arg,
       if (is.null(arg)) return(NULL)
 
       # toggle button states ---------------------------------------------------
-      toggle <- c("remove", "claim", "proof")
+      toggle <- c("claim", "proof")
 
       if (input$proof == "const")
         toggle <- c(toggle, "father", "mother", "child")
-
-      sapply(toggle, function(x) shinyjs::toggleState(x))
 
       div_classes <- c("argument_incorrect",
                        "argument_partially_correct",
@@ -21,7 +19,10 @@ module_argument_modification <- function(id, arg,
 
       if (action == "color") {
 
-        class <- switch(as.character(mean(arg$score)),
+        sapply(toggle, function(x) shinyjs::disable(x))
+
+        class <- switch(as.character(mean(c(arg$conclusion_score,
+                                            arg$evidence_score))),
                         "0" = div_classes[1],
                         "1" = div_classes[3],
                         div_classes[2])
@@ -33,13 +34,33 @@ module_argument_modification <- function(id, arg,
 
         output[["argument-feedback"]] <- renderText({ arg$fb })
         output[["icon"]] <- renderUI({
-          switch(as.character(mean(arg$score)),
-                 "1" = HTML("<i class=\"fas fa-star icon_scoring\"></i>"),
-                 "0" = HTML("<i class=\"far fa-star icon_scoring\"></i>"),
-                 HTML("<i class=\"fas fa-star-half-alt icon_scoring\"></i>"))
+          switch(as.character(mean(c(arg$conclusion_score,
+                                     arg$evidence_score))),
+                 "1" = HTML("<p><i class=\"fas fa-circle-check icon_scoring\"></i></p>"),
+                 "0" = HTML("<p><i class=\"fas fa-circle-xmark icon_scoring\"></i></p>"),
+                 HTML("<p><i class=\"fas fa-circle-exclamation icon_scoring\"></i></p>"))
+
         })
 
       } else if (action == "uncolor") {
+
+        if (! arg$evidence_score  == 1) {
+
+          if (arg$conclusion_score  == 1) {
+            toggle <- toggle[! toggle == "claim"]
+          }
+
+          sapply(toggle, function(x) shinyjs::enable(x))
+
+          sapply(div_classes, function(x) shinyjs::removeCssClass(
+            session$ns("argument-div"), class = div_classes[1:3], asis = TRUE))
+          shinyjs::addCssClass(session$ns("argument-div"),
+                               class = div_classes[4], asis = TRUE)
+          output[["argument-feedback"]] <- renderText({ NULL })
+          output[["icon"]] <- renderUI({ NULL })
+        }
+
+      } else if (action == "erase") {
 
         sapply(div_classes, function(x) shinyjs::removeCssClass(
           session$ns("argument-div"), class = div_classes[1:3], asis = TRUE))

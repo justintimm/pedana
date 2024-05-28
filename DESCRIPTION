@@ -1,6 +1,6 @@
 Package: pedana
 Title: A tool for creating pedigree problems and practicing pedigree analysis
-Version: 0.3.2.9002
+Version: 0.4.0
 Authors@R: 
     person(given = "Justin",
            family = "Timm",
@@ -16,7 +16,7 @@ Encoding: UTF-8
 LazyData: true
 Depends: 
     R (>= 4.1)
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.1
 Imports: 
     stats,
     utils,

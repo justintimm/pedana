@@ -1,4 +1,4 @@
-module_modal_message <- function(id, notes, l = "de", solution = NULL) {
+module_modal_message <- function(id, notes, l = "de", solution = NULL, taskID = NULL) {
   moduleServer(
     id,
     function(input, output, session) {
@@ -10,42 +10,44 @@ module_modal_message <- function(id, notes, l = "de", solution = NULL) {
 
       size <- switch(note,
                      "solution_incomplete_kcr" = "m",
+                     "self_explanation_prompt" = "m",
                      "s")
 
       type <- switch(note,
                      "no_claim" = "error",
                      "no_proof" = "error",
-                     "no_argument" = "error",
-                     "solution_incomplete" = "message",
+                     "self_explanation_prompt" = "message",
+                     "task_completion_prompt" = "message",
+                     "try_again_feedback" = "message",
+                     "elaborated_feedback" = "message",
                      "solution_incomplete_kcr" = "message",
                      "soluion_complete" = "message",
+                     "next_task" = "choice",
                      "back_to_start" = "choice",
                      "error")
 
-      message <- switch(note,
-                        "no_claim" = "dialog_argument_incomplete_message",
-                        "no_proof" = "dialog_argument_incomplete_message",
-                        "no_argument" = "dialog_solution_empty_message",
-                        "solution_incomplete" = "dialog_solution_incomplete_message",
-                        "solution_incomplete_kcr" = "dialog_solution_incomplete_kcr_message",
-                        "solution_complete" = "dialog_solution_complete_message",
-                        "back_to_start" = "dialog_app_refresh_message",
-                        "unknown_error")
+      note <- switch(note,
+                     "no_claim" = "dialog_argument_incomplete",
+                     "no_proof" = "dialog_argument_incomplete",
+                     "self_explanation_prompt" = "dialog_self_explanation_prompt",
+                     "task_completion_prompt" = "dialog_task_completion_prompt",
+                     "try_again_feedback" = "dialog_solution_incomplete_try_again",
+                     "elaborated_feedback" = "dialog_solution_incomplete_elaborated_feedback",
+                     "solution_incomplete_kcr" = "dialog_solution_incomplete_kcr",
+                     "solution_complete" = "dialog_solution_complete",
+                     "back_to_start" = "dialog_app_refresh",
+                     "next_task" = "dialog_next_task",
+                     "unknown_error")
 
-      title <- switch(note,
-                      "no_claim" = "dialog_argument_incomplete_title",
-                      "no_proof" = "dialog_argument_incomplete_title",
-                      "no_argument" = "dialog_solution_empty_title",
-                      "solution_incomplete" = "dialog_solution_incomplete_title",
-                      "solution_incomplete_kcr" = "dialog_solution_incomplete_kcr_title",
-                      "solution_complete" = "dialog_solution_complete_title",
-                      "back_to_start" = "dialog_app_refresh_title",
-                      "unknown_error")
+      if (note == "dialog_self_explanation_prompt") {
+        message <- pedana:::tr(paste0("dialog_self_explanation_prompt_message_", (taskID %% 3) + 1), l)
+      } else {
+        message <- pedana:::tr(paste0(note, "_message"), l)
+      }
 
-      message <- pedana:::tr(message, l)
-      title <- pedana:::tr(title, l)
+      title <- pedana:::tr(paste0(note, "_title"), l)
 
-      if (note == "solution_incomplete_kcr")
+      if (note == "dialog_solution_incomplete_kcr")
         message <- sprintf(message, solution)
 
       if (type == "choice") {
@@ -67,7 +69,6 @@ module_modal_message <- function(id, notes, l = "de", solution = NULL) {
                       size = size,
                       footer = modalButton(pedana:::tr("dialog_ok", l)),
                       easyClose = TRUE))
-
       }
 
       observeEvent(input$dialog_ok, {

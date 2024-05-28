@@ -25,7 +25,7 @@ verbalise_claim <- function(x, l) {
 
   if (length(x[x == "excluded"]) > 1) {
     claim <- tr("solution_dialog_excluded_plural", l)
-    inheritance <- tr(names(x[x == "excluded"]), l)
+    inheritance <- tr(names(x)[x == "excluded"], l)
 
     if (l == "de")
       inheritance <- paste0(inheritance, "e")
@@ -71,6 +71,8 @@ verbalise_claim <- function(x, l) {
 #' @seealso [show_solution()] aggregates the results of the analysis of a
 #' pedigree problem as data frame.
 #'
+#' @importFrom stats reshape
+#'
 #' @export
 #' @md
 verbalise_solution <- function(x,
@@ -84,25 +86,32 @@ verbalise_solution <- function(x,
 
   solution <- show_solution(x)
 
-  order <- apply(solution[, c("AD", "AR", "XD", "XR")], 2, function(i)
-    if (any(i == "excluded")) {1}
-    else if (any(i == "likely")) {2}
-    else if (any(i == "unlikely")) {3}
-    else {4} )
+  solution$order <- sapply(solution$likelihood, function (x)
+    switch(x,
+           "confirmed" = 4,
+           "likely" = 3,
+           "unlikely" = 2,
+           "excluded" = 1))
 
-  solution <- solution[, c("father", "mother", "child", "id",
-                           names(sort(order)))]
+  solution <- solution[order(solution$order), ]
+  solution$order <- NULL
+
+  solution <- reshape(solution, idvar = c("father", "mother", "child", "id"),
+                      v.names = "likelihood", timevar = "moi", direction = "wide")
+  colnames(solution) <- gsub("likelihood.", "", colnames(solution))
+  solution <- solution[, c("mother", "father", "child", "id", "AD", "AR", "XD", "XR")]
 
   solution$claim <- apply(solution, 1, function(i) verbalise_claim(i, l))
 
   if (details)
     solution$proof <- apply(solution, 1, function(i) verbalise_proof(i, l))
 
-  solution$father <- solution$mother <- solution$child <- solution$id <- NULL
-  solution$AD <- solution$AR <- solution$XD <- solution$XR <- NULL
+  solution <- solution[, intersect(colnames(solution), c("claim", "proof"))]
 
-  solution <- apply(solution, 1, function(i) paste(i, collapse = " "))
-  solution <- paste(solution, collapse = " ")
+  if (details)
+    solution <- apply(solution, 1, function(i) paste(i, collapse = " "))
+
+  solution <- paste(solution, collapse = "<br/><br/>")
 
   solution
 }

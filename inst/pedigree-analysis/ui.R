@@ -20,7 +20,11 @@ ui <- tagList(
         column(4, div(imageOutput("logo", width = 70, height = 81), align = "center")),
         column(4, a("pedana Sourcecode on GitHub",
                     href = "https://github.com/justintimm/pedana",
-                    target = "_blank"), style = "text-align: right;")))),
+                    target = "_blank"),
+                  br(), br(),
+                  p(actionLink("switch_language_de", "DE"), " | ",
+                    actionLink("switch_language_en", "EN"))
+               , style = "text-align: right;")))),
     collapsible = TRUE,
     tabPanel(
       title = "Start",

@@ -10,7 +10,7 @@ analyse_fam_const <- function(x) {
       x["phaenotype_child"] == 0 &&
       x["female_child"] == 1) {
     cue <- data.frame(id = 103,
-                      AD = "confirmed",
+                      AD = "neutral",
                       AR = "excluded",
                       XD = "excluded",
                       XR = "excluded")
@@ -49,7 +49,7 @@ analyse_fam_const <- function(x) {
              x["female_child"] == 1) {
     cue <- data.frame(id = 101,
                       AD = "excluded",
-                      AR = "confirmed",
+                      AR = "neutral",
                       XD = "excluded",
                       XR = "excluded")
 

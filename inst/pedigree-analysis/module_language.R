@@ -18,12 +18,22 @@ module_language_server <- function(id) {
     function(input, output, session) {
 
       language <- reactiveVal(NULL)
+
+      observeEvent(input$browserLanguage, {
+        shinyjs::hide(id = id)
+        l <- substr(input$browserLanguage, 1, 2)
+        if (l %in% c("de", "en")) {
+          shinyjs::hide(id = id)
+          language(l)
+        }
+      })
+
       observeEvent(input$de, {
-        shinyjs::hide(id = "language")
+        shinyjs::hide(id = id)
         language("de")
       })
       observeEvent(input$en, {
-        shinyjs::hide(id = "language")
+        shinyjs::hide(id = id)
         language("en")
       })
 

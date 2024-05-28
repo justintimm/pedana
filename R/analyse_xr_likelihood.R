@@ -170,7 +170,9 @@ analyse_xr_likelihood <- function(x, cues) {
     xr <- length(carrier_xr)
 
     # calc z based on Pocock (2006)
-    # https://doi.org/10.1136/bmj.332.7552.1256
+    # Pocock, S. J. (2006). The simplest statistical test: How to check for a
+    #   difference between treatments. BMJ, 332(7552), 1256–1258.
+    #   https://doi.org/10.1136/bmj.332.7552.1256
     z <- abs((ar - xr) / sqrt(ar + xr))
     # calc p from z (one sided)
     p <- stats::pnorm(z, lower.tail = F)

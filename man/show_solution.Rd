@@ -4,13 +4,19 @@
 \alias{show_solution}
 \title{Show a solution to an existing pedigree problem}
 \usage{
-show_solution(x, complete = TRUE)
+show_solution(x, step = NULL)
 }
 \arguments{
 \item{x}{Object of class \code{ped}, usually created using the
 \code{\link[=sim_pedigree_problem]{sim_pedigree_problem()}}.}
 
-\item{complete}{If \code{TRUE}, show a complete solution.}
+\item{step}{If \code{NULL}, the function returns a complete solution.
+When set to numeric values between 1 and 12, the function returns incomplete
+solutions relevant for fading worked out solutions. For steps 1 to 6 the
+function expects a pedigree representing an autosomal mode of inheritance.
+Steps 7 and 8 only work for X-linked recessive pedigrees. Steps 9 and 10
+refer to X-linked dominant pedigrees. Step 11 only works with recessive,
+step 12 only with dominant modes of inheritance.}
 }
 \value{
 Returns a data frame showing a complete or incomplete solution for

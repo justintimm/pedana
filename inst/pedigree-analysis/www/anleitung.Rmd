@@ -5,7 +5,7 @@ output: html_document
 
 # Die Stammbaumanalyse mittels Lern-App pedana
 
-## pedana
+### pedana
 
 **pedana** (Silbenkurzwort von <i><u>ped</u>igree <u>ana</u>lysis</i>, der
 englischen Bezeichnung für Stammbaumanalyse) ist eine Lern-App, mit der du das 
@@ -13,34 +13,33 @@ Analysieren von Stammbäumen üben kannst.
 
 * Du kannst so lange üben wie du möchtest.
 * Du bekommst ständig neue Aufgaben zu allen Erbgängen.
-* Du kannst aus 4 Schwierigkeitsleveln wählen.
+* Du kannst aus 3 Übungsmodi wählen.
 * Du erhältst detailliertes Feedback zu deiner Analyse.
 
-## Ziel der Stammbaumanalyse
+### Ziel der Stammbaumanalyse
 
 Das Ziel bei der Analyse von Stammbäumen ist meist, festzustellen, wie ein 
 Merkmal innerhalb einer Familie vererbt wird. Hierzu bietet es sich an, 
 schrittweise die Erbgänge auszuschließen, die die vorliegende Verteilung des 
 dargestellten Merkmals nicht erklären können. Dies könnte man auch als 
 *Strategie der schrittweisen Falsifikation* bezeichnen. Die App unterstützt dich 
-dabei, diese Strategie einzusetzen um den vorliegenden Erbgang zu bestimmen.
+dabei, diese Strategie einzusetzen, um den vorliegenden Erbgang zu bestimmen.
 
-### Die App bietet vier Schwierigkeitslevel:
+### Die App bietet drei Übungsmodi:
 
-* **Level 1**: Ideal, um sich mit der App und dem Aufbau einer guten Lösung vertraut zu machen. Du erhälst eine Aufgabe inklusive Musterlösung. 
-* **Level 2**: Ideal, für den Einstieg in die Stammbaumanalyse mittels App. Du erhälst eine Aufgabe inklusive Musterlösung für zwei Erbgänge. Deine Aufgabe ist es, die Analyse zu vervollständigen. Du erhälst umfangreiches Feedback zu deiner Argumentation. 
-* **Level 3**: Übe eine vollständige und schlüssige Argumentation zu formulieren. Du erhälst eine offene Aufgabe. Du erhälst umfangreiches Feedback zu deiner Argumentation. 
-* **Level 4**: Trainiere die Stammbaumanalyse unter Prüfungsbedingungen. Du erhälst eine offene Aufgabe und ein kurzes Feedback zu deiner Argumentation. Du kannst deine Argumentation nicht überarbeiten.
+* **Beispielaufgaben**: Ideal, um sich mit der App und dem Aufbau einer guten Lösung vertraut zu machen. Du erhälst eine Aufgabe inklusive Musterlösung. 
+* **Gestufter Übungsmodus**: Du erhälst mehrere Aufgaben nacheinander. Es werden teilweise bearbeitete Stammbaumanalysen vorgegeben. Vervollständige jeweils die Analyse und lass dir detailliertes Feedback zu deinen Eingaben anzeigen. Die Aufgaben werden schrittweise offener gestaltet. Pro Aufgabe kannst du deine Eingaben zwei Mal überarbeiten.
+* **Offener Übungsmodus**: Analysiere den Stammbaum, erstelle eine vollständige Erklärung und lass dir detailliertes Feedback anzeigen. Pro Aufgabe kannst du deine Eingaben zwei Mal überarbeiten.
 
-### So funktioniert die Analyse (Level 2-4)
+### So funktioniert die Analyse
 
 * Analysiere den Stammbaum.
-* Nutze den <i class='fa fa-plus'></i>-Button, um ein Argument einzufügen.
-* Nutze den <i class='fa fa-check'></i>-Button, wenn du fertig bist und deine Argumentation prüfen möchtest.
-* Du bekommst Feedback zu deiner Argumentation.
-* Level 2 & 3: Nutze den <i class='fa fa-edit'></i>-Button, um deine Argumentation **einmal** zu überarbeiten.
-* Level 2 & 3: Du kannst nun weitere Argumente einfügen, bestehende verändern oder löschen.
-* Level 2 & 3: Nutze den <i class='fa fa-check'></i>-Button, um deine Argumentation erneut zu überprüfen.
-* Nutze den <i class='fa fa-home'></i>-Button, um zurück zum Start zu gelangen. Du kannst sofort mit einer neuen Aufgabe beginnen.
+* Gib deine Lösung in die Eingabefelder ein. 
+* Prüfe deine Eingaben, indem du auf den <i class='fa fa-check'></i> **Überprüfen Button** klickst.
+* Bei der ersten Überprüfung erhälst du ein kurzes Feedback zu deiner Lösung.
+* Überarbeite deine Eingaben, indem du auf den <i class='fa fa-edit'></i> **Überarbeiten Button** klickst.
+* Bei der zweiten Überprüfung erhälst du ein ausführliches Feedback zu deiner Lösung.
+* Du kannst deine Eingaben nach der zweiten Überprüfung ein letztes Mal überarbeiten.
+* Bei der dritten Überprüfung wird eine Musterlösung angezeigt.
 
 ### Viel Erfolg!

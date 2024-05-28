@@ -21,7 +21,7 @@ if (! requireNamespace("bench", quietly = TRUE) ||
   stop("Can't knit the pedana benchmark vignette, at least one required ",
        "package is missing.")
 
-load("pedana-benchmarks.RData")
+load("pedana-benchmarks-2024.RData")
 ```
 
 # pedana
@@ -66,11 +66,11 @@ n_data <- NROW(bench_data[bench_data$inheritance == "Autosomal Dominant" &
 
 In general, the simulation functions are able to generate pedigree problems 
 for the learning app at reasonable execution times.^[Simulations were performed 
-on a Macbook Air (Retina, 2018). A set of `r n_data` pedigree problems was 
+on a Macbook Air (M2, 2022). A set of `r n_data` pedigree problems was 
 generated for each parameter combination, giving a total of `r n_data * 8` 
 pedigrees.] It can be assumed that a mean simulation duration of 
 *M* = `r sprintf("%.2f", execution_times$mean)` s 
-(*SD* = `r sprintf("%.2f", execution_times$sd)` s) is not perceived to 
+(*SD* = `r sprintf("%.2f", execution_times$sd)` s) is not perceived to be
 distracting by learners. Note: Values of mean and standard deviation are 
 estimated based on execution times generated with argument `force` set to 
 `TRUE`, as in the app. This must be taken into account when interpreting the 
@@ -113,7 +113,7 @@ $$PA = \frac{n_{\text{affected}}}{n_{\text{total}}} $$
 
 The range of possible values can theoretically range from 0 to 1. Nevertheless,
 these limits cannot be found among the simulated pedigrees, because, obviously,
-they cannot be assigned to one mode of inheritance without doubt.
+such pedigrees cannot be assigned to one mode of inheritance without doubt.
 
 ```{r prop-affected-table, include = TRUE, echo = FALSE, message = FALSE, warning = FALSE}
 bench_data |>

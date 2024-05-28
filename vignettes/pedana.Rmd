@@ -85,7 +85,7 @@ include evidence in the output or not.
 
 ```{r solution}
 verbalise_solution(problem_1, details = TRUE, l = "en")
-show_solution(problem_1, complete = TRUE)
+show_solution(problem_1)
 ```
 
 ### Other Helper Functions
@@ -107,10 +107,14 @@ Equity in Focus) at the [University of Duisburg-Essen](https://www.uni-due.de).
 In addition, several people have supported me in various ways in the 
 development of this app. First of all, I would like to thank Julia Surmann, who 
 did a preliminary work on the development of the pedigree simulation function 
-as part of her master's thesis. In addition, I would like to thank Prof. 
-Philipp Schmiemannn, Prof. Christian Johannes, Dr. Yvonne Lettmann, Dr. Markus 
-Bergmann, Julia Franken, Annika Brechmann, and René Doernemann for great hints 
-and ideas from both, genetic and educational perspectives. 
+as part of her master's thesis. I would also like to thank René Doernemann, who 
+did preliminary work on entering explanations and providing feedback in his 
+bachelor's thesis. Sina Zupanc and Sabine Prüfert formulated ideas for improving 
+the app as part of their master's theses, for which I'm very grateful. 
+In addition, I would like to thank Prof. Philipp Schmiemannn, 
+Prof. Christian Johannes, Dr. Yvonne Lettmann, Dr. Markus 
+Bergmann, Julia Franken, Annika Brechmann, and Greta Backhaus for great hints 
+and ideas from both, genetic and educational perspectives.
 
 The project "Bildungsgerechtigkeit im Fokus" was financially supported by 
 the German Federal Ministry of Education and Research as part of the 

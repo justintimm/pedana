@@ -4,6 +4,71 @@ output: github_document
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(fig.path = "man/figures/")
+
+ref <- c(bibentry(bibtype = "Article",
+                  title = "Die Rolle von Selbsterklärungen aufgrund vorwissensangepasster, domänenspezifischer Lernimpulse beim Lernen mit biologischen Beispielaufgaben",
+                  journal = "Zeitschrift für Didaktik der Naturwissenschaften",
+                  volume = "15",
+                  year = "2009",
+                  pages = "155–172",
+                  author = c(person("I.", "Mackensen-Friedrichs")),
+                  key = "mackensen"),
+         bibentry(bibtype = "InBook",
+                  title = "How to design informative tutoring feedback for multimedia learning",
+                  chapter = 13,
+                  booktitle = "Instructional design for multimedia learning: Proceedings of the 5th International Workshop of SIG 6 Instructional Design of the European Association for Research on Learning and Instruction (EARLI), June 27 - 29, 2002 in Erfurt",
+                  editor = c(person("H. M.", "Niegemann"), person("R.", "Brünken"), person("D.", "Leutner")),
+                  journal = "Zeitschrift für Didaktik der Naturwissenschaften",
+                  year = "2004",
+                  pages = "181–195",
+                  author = c(person("S.", "Narciss"), person("K.", "Huth")),
+                  publisher = "Waxmann",
+                  key = "narcisshuth2004"),
+         bibentry(bibtype = "Article",
+                  title = "ostering achievement and motivation with bug-related tutoring feedback in a computer-based training for written subtraction",
+                  journal = "Learning and Instruction",
+                  volume = "16",
+                  year = "2006",
+                  pages = "310–322",
+                  doi = "https://doi.org/10.1016/j.learninstruc.2006.07.003",
+                  author = c(person("S.", "Narciss"), person("K.", "Huth")),
+                  key = "narcisshuth2006"),
+         bibentry(bibtype = "Article",
+                  title = "Learning from Worked-Out Examples: A Study on Individual Differences",
+                  journal = "Cognitive Science",
+                  volume = "21",
+                  year = "1997",
+                  pages = "1–29",
+                  doi = "https://doi.org/10.1207/s15516709cog2101_1",
+                  author = c(person("A.", "Renkl")),
+                  key = "renkl1997"),
+         bibentry(bibtype = "Article",
+                  title = "Toward an instructionally oriented theory of example-based learning",
+                  journal = "Cognitive Science",
+                  volume = "38",
+                  year = "2014",
+                  pages = "1–37",
+                  doi = "https://doi.org/10.1111/cogs.12086",
+                  author = c(person("A.", "Renkl")),
+                  key = "renkl2014"),
+         bibentry(bibtype = "Article",
+                  title = "Structuring the Transition From Example Study to Problem Solving in Cognitive Skill Acquisition: A Cognitive Load Perspective",
+                  journal = "Educational Psychologist",
+                  volume = "38",
+                  year = "2003",
+                  pages = "15–22",
+                  doi = "https://doi.org/10.1207/S15326985EP3801_3",
+                  author = c(person("A.", "Renkl"), person("R. K.", "Atkinson")),
+                  key = "renklatkinson2003"),
+         bibentry(bibtype = "Article",
+                  title = "The worked example effect and human cognition",
+                  journal = "Learning and Instruction",
+                  volume = "16",
+                  year = "2006",
+                  pages = "165–169",
+                  doi = "https://doi.org/10.1016/j.learninstruc.2006.02.005",
+                  author = c(person("J.", "Sweller")),
+                  key = "sweller2006"))
 ```
 
 # pedana <img src = "man/figures/logo.png" align = "right" width = "150" />
@@ -63,12 +128,26 @@ development of this app. First of all, I would like to thank Julia Surmann, who
 did a preliminary work on the development of the pedigree simulation function 
 as part of her master's thesis. I would also like to thank René Doernemann, 
 who did preliminary work on entering arguments and providing individual 
-feedback as part of a Bachelor's thesis. Finally, I would like to thank 
-Prof. Philipp Schmiemannn, Prof. Christian Johannes, Dr. Yvonne Lettmann, 
-Dr. Markus Bergmann, Julia Franken, and Annika Brechmann for great hints 
-and ideas from both, genetic and educational perspectives. 
+feedback as part of a Bachelor's thesis. Sina Zupanc and Sabine Prüfert also 
+contributed great ideas as part of their master’s theses. Thank you very much.
+Finally, I would like to thank Prof. Philipp Schmiemannn, 
+Prof. Christian Johannes, Dr. Yvonne Lettmann, Dr. Markus Bergmann, Julia Tocco, 
+and Annika Brechmann for great hints and ideas from both, genetic and 
+educational perspectives. 
 
 The project "Bildungsgerechtigkeit im Fokus" was financially supported by 
 the German Federal Ministry of Education and Research as part of the 
 Qualitätspakt Lehre (Quality Pact Teaching) under grant number 01PL16075. 
 The responsibility for the content of this publication is held by the author.
+
+*pedana* includes multiple ideas to increase the learning efficiency, such as 
+working examples `r cite("sweller2006", ref)`, self-explanation prompts 
+`r cite(c("mackensen", "renkl1997", "renkl2014"), ref)`, fading 
+`r cite("renklatkinson2003", ref)`, and elaborated feedback in combination with try 
+again feedback `r cite(c("narcisshuth2004", "narcisshuth2006"), ref)`.
+
+# References
+
+```{R, results = "asis", echo = FALSE}
+print(sort(ref), style = "html")
+```
